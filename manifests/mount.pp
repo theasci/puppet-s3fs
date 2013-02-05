@@ -1,37 +1,6 @@
 # Class: s3fs::mount
 #
 # This module installs s3fs
-#
-# Parameters:
-#
-#  [*bucket*]      - AWS bucket name
-#  [*mount_point*] - Mountpoint for bucket
-#  [*ensure*]      - Set mountpoint values, ensure dir and mount are absent
-#  [*s3url*]       - 'https://s3.amazonaws.com'
-#  [*default_acl*] - 'private'
-#  [*uid*]         - Mountpoint and mount dir owner
-#  [*gid*]         - Mountpoint and mount dir group
-#  [*mode*]        - Mountpoint and moutn dir permissions
-#  [*atboot*]      - 'true',
-#  [*device*]      - "s3fs#${bucket}",
-#  [*fstype*]      - 'fuse',
-#  [*options*]     - "allow_other,uid=${uid},gid=${gid},default_acl=${default_acl},use_cache=/tmp/aws_s3_cache,url=${s3url}",
-#  [*remounts*]    - 'false',
-#
-# Actions:
-#
-# Requires:
-#  Class['s3fs']
-#
-# Sample Usage:
-#
-# # S3FS
-#  s3fs::mount {'Testing':
-#    bucket      => 'testvgh1',
-#    mount_point => '/srv/testvgh1',
-#    uid         => '1001',
-#    gid         => '1001',
-#  }
 # ## S3FS
 #  s3fs::mount {'Testvgh':
 #    bucket      => 'testvgh',
@@ -40,25 +9,24 @@
 #  }
 #
 define s3fs::mount (
-  $bucket      = hiera('drupal::s3fs_bucket', 'drupal-stage'),
-  $mount_point = hiera('drupal::s3fs_mount', '/opt/wwc/drupal-s3-files'),
+  $bucket,
+  $mount_point,
   $ensure      = 'present',
   $default_acl = 'private',
-  $uid         = '33',
-  $gid         = '33',
+  $uid         = '0',
+  $gid         = '0',
   $mode        = '0660',
-  $atboot      = 'true',
+  $atboot      = true,
   $fstype      = 'fuse',
-  $remounts    = 'false',
+  $remounts    = false,
   $cache       = '/mnt/aws_s3_cache',
-  $group       = 'www-data',
-  $owner       = 'www-data',
+  $group       = 'root',
+  $owner       = 'root',
 ) {
 
   include s3fs
-  Class['s3fs'] -> S3fs::Mount["${name}"]
+  Class['s3fs'] -> S3fs::Mount[$name]
 
-  # Declare this here, otherwise, uid, guid, etc.. are not initialized in the correct order.
   $options = "gid=$gid,uid=$uid,default_acl=${default_acl},use_cache=${cache}"
   $device = "s3fs#${bucket}"
 
@@ -76,7 +44,7 @@ define s3fs::mount (
     }
   }
 
-  File["${mount_point}"] -> Mount["${mount_point}"]
+  File[$mount_point] -> Mount[$mount_point]
 
   file { $mount_point:
     ensure  => $ensure_dir,
