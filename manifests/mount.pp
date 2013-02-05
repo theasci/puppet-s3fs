@@ -55,6 +55,7 @@ define s3fs::mount (
   $owner       = 'root',
 ) {
 
+  include s3fs
   Class['s3fs'] -> S3fs::Mount["${name}"]
 
   # Declare this here, otherwise, uid, guid, etc.. are not initialized in the correct order.
