@@ -30,14 +30,14 @@
 # http://code.google.com/p/s3fs/downloads/detail?name=s3fs-1.62.tar.gz&can=2&q=
 class s3fs (
   $ensure                = 'present',
-  $s3fs_package          = hiera('s3fs::package', 's3fs'),
-  $download_dir          = hiera('s3fs::download_dir', '/var/tmp'),
-  $version               = hiera('s3fs::version', '1.61'),
-  $download_url          = hiera('s3fs::download_url',
+  $s3fs_package          = hiera('drupal::s3fs_package', 's3fs'),
+  $download_dir          = hiera('drupal::s3fs_download_dir', '/var/tmp'),
+  $version               = hiera('drupal::s3fs_version', '1.61'),
+  $download_url          = hiera('drupal::s3fs_download_url',
                                   'http://s3fs.googlecode.com/files'),
-  $aws_access_key_id     = hiera('s3fs::aws_access_key_id', ''),
-  $aws_secret_access_key = hiera('s3fs::aws_secret_access_key', ''),
-  $credentials_file      = hiera('s3fs::credentials_file', '/etc/passwd-s3fs')
+  $aws_access_key_id     = hiera('drupal::s3fs_aws_access_key_id', ''),
+  $aws_secret_access_key = hiera('drupal::s3fs_aws_secret_access_key', ''),
+  $credentials_file      = hiera('drupal::s3fs_credentials_file', '/etc/passwd-s3fs')
 ) {
 
   $credentials = inline_template(
