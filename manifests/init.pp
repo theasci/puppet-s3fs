@@ -26,20 +26,25 @@
 #    $aws_secret_access_key => 'randomSecret',
 #  }
 #
+
+# http://code.google.com/p/s3fs/downloads/detail?name=s3fs-1.62.tar.gz&can=2&q=
 class s3fs (
   $ensure                = 'present',
-  $s3fs_package          = $s3fs::params::s3fs_package,
-  $download_dir          = $s3fs::params::download_dir,
-  $version               = $s3fs::params::version,
-  $download_url          = $s3fs::params::download_url,
-  $aws_access_key_id     = hiera('aws_access_key_id'),
-  $aws_secret_access_key = hiera('aws_secret_access_key'),
-  $credentials_file      = $s3fs::params::credentials_file
-) inherits s3fs::params {
+  $s3fs_package          = hiera('s3fs::package', 's3fs'),
+  $download_dir          = hiera('s3fs::download_dir', '/var/tmp'),
+  $version               = hiera('s3fs::version', '1.61'),
+  $download_url          = hiera('s3fs::download_url',
+                                  'http://s3fs.googlecode.com/files'),
+  $aws_access_key_id     = hiera('s3fs::aws_access_key_id', ''),
+  $aws_secret_access_key = hiera('s3fs::aws_secret_access_key', ''),
+  $credentials_file      = hiera('s3fs::credentials_file', '/etc/passwd-s3fs')
+) {
 
-  $credentials = inline_template("<%= @aws_access_key_id %>:<%= @aws_secret_access_key %>\n")
+  $credentials = inline_template(
+    "<%= @aws_access_key_id %>:<%= @aws_secret_access_key %>\n")
 
   Class['s3fs::dependencies'] -> Class['s3fs']
+
   include s3fs::dependencies
 
   file{ 's3fs_credentials':
@@ -51,7 +56,11 @@ class s3fs (
     mode    => '0640',
   }
 
-  Exec['s3fs_tar_gz'] ~> Exec['s3fs_extract'] ~> Exec['s3fs_configure'] ~> Exec['s3fs_make'] ~> Exec['s3fs_install']
+  Exec['s3fs_tar_gz']
+    ~> Exec['s3fs_extract']
+    ~> Exec['s3fs_configure']
+    ~> Exec['s3fs_make']
+    ~> Exec['s3fs_install']
 
   # Distribute s3fs source from within module to control version (could
   # also download from Google directly):
@@ -59,14 +68,13 @@ class s3fs (
     command   => "/usr/bin/curl -o ${download_dir}/s3fs-${version}.tar.gz ${download_url}/s3fs-${version}.tar.gz",
     logoutput => true,
     timeout   => 300,
-    #path      => '/sbin:/bin:/usr/local/bin:/usr/local/sbin',
     unless    => "/usr/bin/which /usr/local/bin/s3fs && /usr/local/bin/s3fs --version | grep ${version}",
   }
-  
+
   # Extract s3fs source:
   exec { 's3fs_extract':
     creates   => "${download_dir}/s3fs-${version}",
-    cwd         => "${download_dir}",
+    cwd       => "${download_dir}",
     command   => "tar --no-same-owner -xzf ${download_dir}/s3fs-$version.tar.gz",
     logoutput => true,
     timeout   => 300,
@@ -93,7 +101,7 @@ class s3fs (
     timeout     => 300,
     refreshonly => true,
   }
-  
+
   # Install s3fs
   exec { 's3fs_install':
     command     => "/usr/bin/make install",
@@ -102,5 +110,5 @@ class s3fs (
     timeout     => 300,
     refreshonly => true,
   }
-  
+
 }
