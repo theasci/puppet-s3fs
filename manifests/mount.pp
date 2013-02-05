@@ -47,6 +47,7 @@ define s3fs::mount (
   File[$mount_point] -> Mount[$mount_point]
 
   file { $mount_point:
+    recurse => true,
     ensure  => $ensure_dir,
     force   => true,
     owner   => $owner,
@@ -55,7 +56,6 @@ define s3fs::mount (
   }
 
   mount{ $mount_point:
-    recurse  => true,
     ensure   => $ensure_mount,
     atboot   => $atboot,
     device   => $device,
