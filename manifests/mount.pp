@@ -55,6 +55,7 @@ define s3fs::mount (
   }
 
   mount{ $mount_point:
+    recurse  => true,
     ensure   => $ensure_mount,
     atboot   => $atboot,
     device   => $device,
