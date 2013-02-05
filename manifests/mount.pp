@@ -27,7 +27,7 @@ define s3fs::mount (
   include s3fs
   Class['s3fs'] -> S3fs::Mount[$name]
 
-  $options = "gid=$gid,uid=$uid,default_acl=${default_acl},use_cache=${cache}"
+  $options = "allow_other,gid=$gid,uid=$uid,default_acl=${default_acl},use_cache=${cache}"
   $device = "s3fs#${bucket}"
 
   case $ensure {
