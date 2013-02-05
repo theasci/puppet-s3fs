@@ -44,29 +44,31 @@ define s3fs::mount (
   $mount_point = hiera('drupal::s3fs_mount', '/opt/wwc/drupal-s3-files'),
   $ensure      = 'present',
   $default_acl = 'private',
-  $uid         = '0',
-  $gid         = '0',
+  $uid         = '33',
+  $gid         = '33',
   $mode        = '0660',
   $atboot      = 'true',
   $fstype      = 'fuse',
   $remounts    = 'false',
   $cache       = '/mnt/aws_s3_cache',
   $group       = 'www-data',
-  $owner       = 'root',
+  $owner       = 'www-data',
 ) {
 
   include s3fs
   Class['s3fs'] -> S3fs::Mount["${name}"]
 
   # Declare this here, otherwise, uid, guid, etc.. are not initialized in the correct order.
-  $options = "default_acl=${default_acl},use_cache=${cache}"
+  $options = "gid=$gid,uid=$uid,default_acl=${default_acl},use_cache=${cache}"
   $device = "s3fs#${bucket}"
 
   case $ensure {
     present, defined, unmounted, mounted: {
+      $ensure_mount = 'mounted'
       $ensure_dir = 'directory'
     }
     absent: {
+      $ensure_mount = 'absent'
       $ensure_dir = 'absent'
     }
     default: {
@@ -78,7 +80,6 @@ define s3fs::mount (
 
   file { $mount_point:
     ensure  => $ensure_dir,
-    recurse => true,
     force   => true,
     owner   => $owner,
     group   => $group,
@@ -86,7 +87,7 @@ define s3fs::mount (
   }
 
   mount{ $mount_point:
-    ensure   => mounted,
+    ensure   => $ensure_mount,
     atboot   => $atboot,
     device   => $device,
     fstype   => $fstype,
