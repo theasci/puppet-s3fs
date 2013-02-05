@@ -59,7 +59,7 @@ define s3fs::mount (
   Class['s3fs'] -> S3fs::Mount["${name}"]
 
   # Declare this here, otherwise, uid, guid, etc.. are not initialized in the correct order.
-  $options = "allow_other,uid=${uid},gid=${gid},default_acl=${default_acl},use_cache=${cache}"
+  $options = "default_acl=${default_acl},use_cache=${cache}"
   $device = "s3fs#${bucket}"
 
   case $ensure {
