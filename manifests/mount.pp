@@ -24,7 +24,6 @@ define s3fs::mount (
   $owner       = 'root',
 ) {
 
-  include s3fs
   Class['s3fs'] -> S3fs::Mount[$name]
 
   $options = "allow_other,gid=$gid,uid=$uid,default_acl=${default_acl},use_cache=${cache}"
