@@ -11,17 +11,18 @@
 define s3fs::mount (
   $bucket,
   $mount_point,
-  $ensure      = 'present',
-  $default_acl = 'private',
-  $uid         = '0',
-  $gid         = '0',
-  $mode        = '0660',
-  $atboot      = true,
-  $fstype      = 'fuse',
-  $remounts    = false,
-  $cache       = '/mnt/aws_s3_cache',
-  $group       = 'root',
-  $owner       = 'root',
+  $ensure        = 'present',
+  $default_acl   = 'private',
+  $uid           = '0',
+  $gid           = '0',
+  $mode          = '0660',
+  $atboot        = true,
+  $fstype        = 'fuse',
+  $remounts      = false,
+  $cache         = '/mnt/aws_s3_cache',
+  $group         = 'root',
+  $owner         = 'root',
+  $perm_recurse  = true,
 ) {
 
   Class['s3fs'] -> S3fs::Mount[$name]
@@ -46,7 +47,7 @@ define s3fs::mount (
   File[$mount_point] -> Mount[$mount_point]
 
   file { $mount_point:
-    recurse => true,
+    recurse => $perm_recurse,
     ensure  => $ensure_dir,
     force   => true,
     owner   => $owner,
