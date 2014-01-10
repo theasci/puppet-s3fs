@@ -1,9 +1,27 @@
 class s3fs::dependencies {
+  # List taken from http://code.google.com/p/s3fs/wiki/InstallationNotes
+  $prereqs = $::operatingsystem ? {
+    CentOS => [
+      'gcc',
+      'gcc-c++',
+      'libstdc++-devel',
+      'fuse',
+      'fuse-devel',
+      'libcurl-devel',
+      'libxml2-devel',
+      'openssl-devel',
+      'mailcap ',
+    ],
+    Ubuntu => [
+      'build-essential',
+      'libfuse-dev',
+      'fuse-utils',
+      'libcurl4-openssl-dev',
+      'libxml2-dev',
+      'mime-support ',
+    ],
+    default => [],
+  }
 
-  if ! defined(Package['build-essential'])      { package { 'build-essential':      ensure => installed } }
-  if ! defined(Package['libfuse-dev'])          { package { 'libfuse-dev':          ensure => installed } }
-  if ! defined(Package['fuse-utils'])           { package { 'fuse-utils':           ensure => installed } }
-  if ! defined(Package['libcurl4-openssl-dev']) { package { 'libcurl4-openssl-dev': ensure => installed } }
-  if ! defined(Package['mime-support'])         { package { 'mime-support':         ensure => installed } }
-
+  ensure_packages($prereqs)
 }

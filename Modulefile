@@ -7,3 +7,4 @@ project_page ''
 source ''
 summary ''
 description ''
+dependency "puppetlabs/stdlib", ">= 3.2.0"
