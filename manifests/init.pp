@@ -39,14 +39,11 @@ class s3fs (
   $credentials_file      = '/etc/passwd-s3fs',
 ) {
 
-  $credentials = inline_template(
-    "<%= @aws_access_key_id %>:<%= @aws_secret_access_key %>\n")
-
-  Class['s3fs::dependencies'] -> Class['s3fs']
-
   include s3fs::dependencies
 
-  file{ 's3fs_credentials':
+  $credentials = inline_template(
+    "<%= @aws_access_key_id %>:<%= @aws_secret_access_key %>\n")
+  file { 's3fs_credentials':
     ensure  => $ensure,
     path    => $credentials_file,
     content => $credentials,
@@ -55,59 +52,44 @@ class s3fs (
     mode    => '0640',
   }
 
-  Exec['s3fs_tar_gz']
-    ~> Exec['s3fs_extract']
-    ~> Exec['s3fs_configure']
-    ~> Exec['s3fs_make']
-    ~> Exec['s3fs_install']
+  Exec {
+    logoutput => true,
+    timeout   => 300,
+    path      => '/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin',
+  }
 
   # Distribute s3fs source from within module to control version (could
   # also download from Google directly):
   exec { 's3fs_tar_gz':
-    command   => "/usr/bin/curl -o ${download_dir}/s3fs-${version}.tar.gz ${download_url}/s3fs-${version}.tar.gz",
-    logoutput => true,
-    timeout   => 300,
-    unless    => "/usr/bin/which /usr/local/bin/s3fs && /usr/local/bin/s3fs --version | grep ${version}",
+    command => "curl ${download_url}/s3fs-${version}.tar.gz",
+    cwd     => $download_dir,
+    unless  => "which s3fs && s3fs --version | grep ${version}",
   }
-
+  ->
   # Extract s3fs source:
   exec { 's3fs_extract':
-    creates   => "${download_dir}/s3fs-${version}",
-    cwd       => "${download_dir}",
-    command   => "tar --no-same-owner -xzf ${download_dir}/s3fs-$version.tar.gz",
-    logoutput => true,
-    timeout   => 300,
-    path      => '/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin',
-    refreshonly => true,
+    creates => "${download_dir}/s3fs-${version}",
+    cwd     => $download_dir,
+    command => "tar --no-same-owner -xzf s3fs-${version}.tar.gz",
   }
-
+  ->
   # Configure s3fs build:
   exec { 's3fs_configure':
-    creates     => "${download_dir}/s3fs-${version}/config.status",
-    cwd         => "${download_dir}/s3fs-${version}",
-    command     => "${download_dir}/s3fs-${version}/configure",
-    logoutput   => true,
-    timeout     => 300,
-    refreshonly => true,
+    creates => "${download_dir}/s3fs-${version}/config.status",
+    cwd     => "${download_dir}/s3fs-${version}",
+    command => './configure',
   }
-
+  ->
   # Build s3fs:
   exec { 's3fs_make':
-    creates     => "${download_dir}/s3fs-${version}/src/s3fs",
-    cwd         => "${download_dir}/s3fs-${version}",
-    command     => "/usr/bin/make",
-    logoutput   => true,
-    timeout     => 300,
-    refreshonly => true,
+    creates => "${download_dir}/s3fs-${version}/src/s3fs",
+    cwd     => "${download_dir}/s3fs-${version}",
+    command => 'make',
   }
-
+  ->
   # Install s3fs
   exec { 's3fs_install':
-    command     => "/usr/bin/make install",
-    cwd         => "${download_dir}/s3fs-${version}",
-    logoutput   => true,
-    timeout     => 300,
-    refreshonly => true,
+    command => 'make install',
+    cwd     => "${download_dir}/s3fs-${version}",
   }
-
 }
