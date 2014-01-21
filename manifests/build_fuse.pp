@@ -41,13 +41,10 @@ class s3fs::build_fuse (
       creates => "${build_dir}/src/fuse",
     }
     ->
-    exec { 'fuse_install':
-      command => 'make install',
+    exec { 'fuse_install_and_cleanup':
+      command => "make install && rm -rf ${build_dir} ${download_dir}/${filename}",
       cwd     => $build_dir,
     }
     ->
-    exec { 'fuse_remove_build_files':
-      command => "rm -rf ${build_dir} ${download_dir}/${filename}",
-    }
     exec { 'fuse_ldconfig': command => 'ldconfig' }
 }

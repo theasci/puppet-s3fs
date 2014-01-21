@@ -90,12 +90,8 @@ class s3fs (
     creates => "${build_dir}/src/s3fs",
   }
   ->
-  exec { 's3fs_install':
-    command => 'make install',
+  exec { 's3fs_install_and_cleanup':
+    command => "make install && rm -rf ${build_dir} ${download_dir}/${filename}",
     cwd     => $build_dir,
-  }
-  ->
-  exec {'s3fs_remove_build_files':
-    command => "rm -rf ${build_dir} ${download_dir}/${filename}",
   }
 }
