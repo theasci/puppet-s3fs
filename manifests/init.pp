@@ -35,11 +35,14 @@ class s3fs (
   $s3fs_package          = 's3fs',
   $download_dir          = '/var/tmp',
   $version               = '1.61',
+  $fuse_version          = '2.8.4',
   $download_url          = 'http://s3fs.googlecode.com/files',
   $credentials_file      = '/etc/passwd-s3fs',
 ) {
-
-  include s3fs::dependencies
+  class { 's3fs::dependencies':
+    download_dir => $download_dir,
+    fuse_version => $fuse_version,
+  }
 
   $credentials = inline_template(
     "<%= @aws_access_key_id %>:<%= @aws_secret_access_key %>\n")
