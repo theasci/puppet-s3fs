@@ -53,43 +53,46 @@ class s3fs (
   }
 
   Exec {
-    logoutput => true,
-    timeout   => 300,
-    path      => '/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin',
+    logoutput   => false,
+    timeout     => 300,
+    path        => '/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin',
+    unless      => "which s3fs && s3fs --version | grep ${version} > /dev/null 2>&1",
+    require     => Package[$s3fs::dependencies::prereqs],
   }
 
-  # Distribute s3fs source from within module to control version (could
-  # also download from Google directly):
+  $filename = "s3fs-${version}.tar.gz"
+  $build_dir = "${download_dir}/s3fs-${version}"
+
   exec { 's3fs_tar_gz':
-    command => "curl ${download_url}/s3fs-${version}.tar.gz",
-    cwd     => $download_dir,
-    unless  => "which s3fs && s3fs --version | grep ${version}",
+    command     => "wget --quiet ${download_url}/${filename}",
+    cwd         => $download_dir,
+    creates     => "${download_dir}/${filename}",
   }
   ->
-  # Extract s3fs source:
   exec { 's3fs_extract':
-    creates => "${download_dir}/s3fs-${version}",
-    cwd     => $download_dir,
-    command => "tar --no-same-owner -xzf s3fs-${version}.tar.gz",
+    command     => "tar --no-same-owner -xzf ${filename}",
+    cwd         => $download_dir,
+    creates     => $build_dir,
   }
   ->
-  # Configure s3fs build:
   exec { 's3fs_configure':
-    creates => "${download_dir}/s3fs-${version}/config.status",
-    cwd     => "${download_dir}/s3fs-${version}",
-    command => './configure',
+    command => "${build_dir}/configure --prefix=/usr",
+    cwd     => $build_dir,
+    creates => "${build_dir}/config.status",
   }
   ->
-  # Build s3fs:
   exec { 's3fs_make':
-    creates => "${download_dir}/s3fs-${version}/src/s3fs",
-    cwd     => "${download_dir}/s3fs-${version}",
     command => 'make',
+    cwd     => $build_dir,
+    creates => "${build_dir}/src/s3fs",
   }
   ->
-  # Install s3fs
   exec { 's3fs_install':
     command => 'make install',
-    cwd     => "${download_dir}/s3fs-${version}",
+    cwd     => $build_dir,
+  }
+  ->
+  exec {'s3fs_remove_build_files':
+    command => "rm -rf ${build_dir} ${download_dir}/${filename}",
   }
 }
