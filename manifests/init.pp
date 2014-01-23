@@ -38,6 +38,7 @@ class s3fs (
   $fuse_version          = '2.8.4',
   $download_url          = 'http://s3fs.googlecode.com/files',
   $credentials_file      = '/etc/passwd-s3fs',
+  $mounts                = {},
 ) {
   class { 's3fs::dependencies':
     download_dir => $download_dir,
@@ -94,4 +95,8 @@ class s3fs (
     command => "make install && rm -rf ${build_dir} ${download_dir}/${filename}",
     cwd     => $build_dir,
   }
+
+  create_resources('s3fs::mount', $mounts, {
+    require => Exec['s3fs_install_and_cleanup'],
+  })
 }
