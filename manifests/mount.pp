@@ -2,33 +2,28 @@
 #
 # This module installs s3fs
 # ## S3FS
-#  s3fs::mount {'Testvgh':
+#  s3fs::mount {'testvgh':
 #    bucket      => 'testvgh',
 #    mount_point => '/srv/testvgh2',
 #    default_acl => 'public-read',
 #  }
 #
 define s3fs::mount (
-  $bucket,
   $mount_point,
+  $bucket        = $name,
   $ensure        = 'present',
   $default_acl   = 'private',
   $uid           = '0',
   $gid           = '0',
   $mode          = '0660',
   $atboot        = true,
-  $fstype        = 'fuse',
   $remounts      = false,
+  $use_cache     = false,
   $cache         = '/mnt/aws_s3_cache',
-  $group         = 'root',
-  $owner         = 'root',
-  $perm_recurse  = true,
+  $perm_recurse  = false,
+  $url           = 'http://s3.amazonaws.com',
 ) {
-
-  Class['s3fs'] -> S3fs::Mount[$name]
-
-  $options = "allow_other,gid=$gid,uid=$uid,default_acl=${default_acl},use_cache=${cache}"
-  $device = "s3fs#${bucket}"
+  include s3fs
 
   case $ensure {
     present, defined, unmounted, mounted: {
@@ -44,22 +39,29 @@ define s3fs::mount (
     }
   }
 
-  File[$mount_point] -> Mount[$mount_point]
+  $options = inline_template(
+    'allow_other,',
+    'gid=<%= @gid %>,',
+    'uid=<%= @uid %>,',
+    'default_acl=<%= @default_acl %>,',
+    'url=<%= @url %>',
+    '<% if @use_cache %>,cache=<%= @cache %><% end %>'
+  )
 
   file { $mount_point:
-    recurse => $perm_recurse,
     ensure  => $ensure_dir,
+    recurse => $perm_recurse,
     force   => true,
-    owner   => $owner,
-    group   => $group,
+    owner   => $uid,
+    group   => $gid,
     mode    => $mode,
   }
-
+  ->
   mount{ $mount_point:
     ensure   => $ensure_mount,
     atboot   => $atboot,
-    device   => $device,
-    fstype   => $fstype,
+    device   => "s3fs#${bucket}",
+    fstype   => 'fuse',
     options  => $options,
     remounts => $remounts,
   }
