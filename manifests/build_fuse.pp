@@ -11,10 +11,13 @@ class s3fs::build_fuse (
     $build_dir = "${download_dir}/fuse-${version}"
 
     Exec {
-      logoutput => false,
-      timeout   => 300,
-      path      => '/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin',
-      unless    => "pkg-config --modversion fuse | grep ${version} > /dev/null 2>&1",
+      logoutput   => false,
+      timeout     => 300,
+      path        => '/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin',
+      # seems FUSE installs its fuse.pc file in /usr/lib/pkgconfig/ instead of
+      # /usr/lib64/pkgconfig on x86_64 when compiled
+      environment => [ 'PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/lib64/pkgconfig' ],
+      unless      => "pkg-config --modversion fuse | grep ${version} > /dev/null 2>&1",
     }
 
     exec { 'fuse_tar_gz':

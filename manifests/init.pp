@@ -61,6 +61,9 @@ class s3fs (
     timeout     => 300,
     path        => '/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/local/sbin',
     unless      => "which s3fs && s3fs --version | grep ${version} > /dev/null 2>&1",
+    # seems FUSE installs its fuse.pc file in /usr/lib/pkgconfig/ instead of
+    # /usr/lib64/pkgconfig on x86_64 when compiled
+    environment => [ 'PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/lib64/pkgconfig' ],
     require     => Package[$s3fs::dependencies::prereqs],
   }
 
