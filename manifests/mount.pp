@@ -18,8 +18,7 @@ define s3fs::mount (
   $mode              = '0660',
   $atboot            = true,
   $remounts          = false,
-  $use_cache         = false,
-  $cache             = '/mnt/aws_s3_cache',
+  $use_cache         = '',
   $perm_recurse      = false,
   $stat_cache_expire = undef,
   $noobj_cache       = false,
@@ -47,8 +46,8 @@ define s3fs::mount (
     'uid=<%= @uid %>,',
     'default_acl=<%= @default_acl %>,',
     'url=<%= @url %>',
-    '<% if @use_cache %>,cache=<%= @cache %><% end %>',
-    '<% if @stat_cache_expire %>,cache=<%= @stat_cache_expire%><% end %>',
+    '<% if @use_cache %>,use_cache=<%= @use_cache %><% end %>',
+    '<% if @stat_cache_expire %>,stat_cache_expire=<%= @stat_cache_expire %><% end %>',
     '<% if @noobj_cache %>,enable_noobj_cache<% end %>'
   )
 
