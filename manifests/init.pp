@@ -39,6 +39,7 @@ class s3fs (
   $download_url          = 'http://s3fs.googlecode.com/files',
   $credentials_file      = '/etc/passwd-s3fs',
   $mounts                = {},
+  $install_cache_cleaner = false,
 ) {
   class { 's3fs::dependencies':
     download_dir => $download_dir,
@@ -97,6 +98,16 @@ class s3fs (
   exec { 's3fs_install_and_cleanup':
     command => "make install && rm -rf ${build_dir} ${download_dir}/${filename}",
     cwd     => $build_dir,
+  }
+
+  if $install_cache_cleaner {
+    file { '/usr/bin/s3fs_cache_cleaner':
+      ensure => present,
+      owner  => 'root',
+      group  => 'root',
+      mode   => '0777',
+      source => 'puppet:///modules/s3fs/cache_cleaner',
+    }
   }
 
   create_resources('s3fs::mount', $mounts, {
