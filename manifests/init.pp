@@ -6,8 +6,8 @@
 #
 #  [*aws_secret_access_key*] - aws secret access key
 #  [*aws_access_key_id*]     - aws access key id
-#  [*s3fs_package*]          - s3fs package name
-#  [*s3fs_version*]          - s3fs version
+#  [*package_name*]          - s3fs package name
+#  [*package_ensure*]        - s3fs package "ensure" parameter
 #  [*credentials_file*]      - location of aws credentials file
 #
 # Actions:
@@ -28,8 +28,8 @@
 class s3fs (
   $aws_secret_access_key,
   $aws_access_key_id,
-  $s3fs_package          = 's3fs-fuse',
-  $s3fs_version          = '1.76',
+  $package_name          = 's3fs-fuse',
+  $package_ensure        = 'latest',
   $credentials_file      = '/etc/passwd-s3fs',
   $mounts                = {},
   $install_cache_cleaner = false,
@@ -47,7 +47,7 @@ class s3fs (
     mode    => '0640',
   }
 
-  package { $s3fs_package: ensure => $s3fs_version }
+  package { $package_name: ensure => $package_ensure }
 
   if $install_cache_cleaner {
     file { '/usr/bin/s3fs_cache_cleaner':
@@ -60,6 +60,6 @@ class s3fs (
   }
 
   create_resources('s3fs::mount', $mounts, {
-    require => Package[$s3fs_package],
+    require => Package[$package_name],
   })
 }
