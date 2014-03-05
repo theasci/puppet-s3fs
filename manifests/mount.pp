@@ -10,19 +10,20 @@
 #
 define s3fs::mount (
   $mount_point,
-  $bucket            = $name,
-  $ensure            = 'present',
-  $default_acl       = 'private',
-  $uid               = '0',
-  $gid               = '0',
-  $mode              = '0660',
-  $atboot            = true,
-  $remounts          = false,
-  $use_cache         = '',
-  $perm_recurse      = false,
-  $stat_cache_expire = undef,
-  $noobj_cache       = false,
-  $url               = 'http://s3.amazonaws.com',
+  $bucket              = $name,
+  $ensure              = 'present',
+  $default_acl         = 'private',
+  $uid                 = '0',
+  $gid                 = '0',
+  $mode                = '0660',
+  $atboot              = true,
+  $remounts            = false,
+  $use_cache           = '',
+  $max_stat_cache_size = undef,
+  $perm_recurse        = false,
+  $stat_cache_expire   = undef,
+  $noobj_cache         = false,
+  $url                 = 'http://s3.amazonaws.com',
 ) {
   include s3fs
 
@@ -48,7 +49,8 @@ define s3fs::mount (
     'url=<%= @url %>',
     '<% if @use_cache %>,use_cache=<%= @use_cache %><% end %>',
     '<% if @stat_cache_expire %>,stat_cache_expire=<%= @stat_cache_expire %><% end %>',
-    '<% if @noobj_cache %>,enable_noobj_cache<% end %>'
+    '<% if @noobj_cache %>,enable_noobj_cache<% end %>',
+    '<% if @max_stat_cache_size %>,max_stat_cache_size=<%= @max_stat_cache_size %><% end %>'
   )
 
   file { $mount_point:
