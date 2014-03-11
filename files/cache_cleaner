@@ -60,7 +60,7 @@ fi
 #
 # Make file list by sorted access time
 #
-ALL_STATS_ATIMELIST=`find $STATS_CDIR -type f -exec echo -n {} \; -exec echo -n " " \; -exec stat -c %X {} \; | awk '{print $2":"$1}' | sort`
+ALL_STATS_ATIMELIST=`find $STATS_CDIR -ignore_readdir_race -type f -exec echo -n {} \; -exec echo -n " " \; -exec stat -c %X {} \; | awk '{print $2":"$1}' | sort`
 
 #
 # Remove loop
