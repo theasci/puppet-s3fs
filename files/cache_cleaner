@@ -73,7 +73,7 @@ for part in $ALL_STATS_ATIMELIST; do
   TMP_STATS=`echo $part | sed 's/\:/ /' | awk '{print $2}'`
   TMP_CFILE=`echo $TMP_STATS | sed s/\.$BUCKET\.stat/$BUCKET/`
 
-  if [ `stat -c %X $TMP_STATS` -eq $TMP_ATIME ]; then
+  if [ `stat -c %X $TMP_STATS 2>/dev/null` -eq $TMP_ATIME ]; then
     rm -f $TMP_STATS $TMP_CFILE > /dev/null 2>&1
     if [ $? -ne 0 ]; then
       if [ $SILENT -ne 1 ]; then
