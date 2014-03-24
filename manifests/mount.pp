@@ -42,7 +42,7 @@ define s3fs::mount (
   }
 
   $options = inline_template(
-    '_netdev',
+    '_netdev,',
     'allow_other,',
     'gid=<%= @gid %>,',
     'uid=<%= @uid %>,',
