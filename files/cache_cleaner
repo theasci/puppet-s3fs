@@ -27,6 +27,7 @@ func_usage()
 }
 
 PRGNAME=`basename $0`
+NICE='nice -n 19'
 IONICE='ionice -c 3'
 
 if [ "X$1" = "X-h" -o "X$1" = "X-H" ]; then
@@ -61,7 +62,7 @@ fi
 #
 # Make file list by sorted access time
 #
-ALL_STATS_ATIMELIST=`$IONICE -- find $STATS_CDIR -ignore_readdir_race -type f -exec echo -n {} \; -exec echo -n " " \; -exec stat -c %X {} \; 2>/dev/null | awk '{print $2":"$1}' | sort`
+ALL_STATS_ATIMELIST=`$NICE $IONICE find $STATS_CDIR -ignore_readdir_race -type f -exec echo -n {} \; -exec echo -n " " \; -exec stat -c %X {} \; 2>/dev/null | awk '{print $2":"$1}' | sort`
 
 #
 # Remove loop
