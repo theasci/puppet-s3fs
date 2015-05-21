@@ -60,7 +60,8 @@ fi
 #
 # Make file list by sorted access time
 #
-ALL_STATS_ATIMELIST=`find $STATS_CDIR -ignore_readdir_race -type f -exec echo -n {} \; -exec echo -n " " \; -exec stat -c %X {} \; 2>/dev/null | awk '{print $2":"$1}' | sort`
+FIELD_SEPARATOR='!!!'
+ALL_STATS_ATIMELIST=`find "$STATS_CDIR" -ignore_readdir_race -printf "%A@$FS%p\n" | sort`
 
 #
 # Remove loop
@@ -68,13 +69,13 @@ ALL_STATS_ATIMELIST=`find $STATS_CDIR -ignore_readdir_race -type f -exec echo -n
 TMP_ATIME=0
 TMP_STATS=""
 TMP_CFILE=""
-for part in $ALL_STATS_ATIMELIST; do
-  TMP_ATIME=`echo $part | sed 's/\:/ /' | awk '{print $1}'`
-  TMP_STATS=`echo $part | sed 's/\:/ /' | awk '{print $2}'`
-  TMP_CFILE=`echo $TMP_STATS | sed s/\.$BUCKET\.stat/$BUCKET/`
+for part in "$ALL_STATS_ATIMELIST"; do
+  TMP_ATIME=`echo "$part" | awk -F "$FIELD_SEPARATOR" '{print int($1)}'`
+  TMP_STATS=`echo "$part" | awk -F "$FIELD_SEPARATOR" '{print $2}'`
+  TMP_CFILE=`echo "$TMP_STATS" | sed s/\.$BUCKET\.stat/$BUCKET/`
 
-  if [[ `stat -c %X $TMP_STATS 2>/dev/null` -eq $TMP_ATIME ]]; then
-    rm -f $TMP_STATS $TMP_CFILE > /dev/null 2>&1
+  if [[ `stat -c %X "$TMP_STATS" 2>/dev/null` -eq "$TMP_ATIME" ]]; then
+    rm -f "$TMP_STATS" "$TMP_CFILE" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
       if [ $SILENT -ne 1 ]; then
         echo "ERROR: Could not remove files($TMP_STATS,$TMP_CFILE)"
@@ -87,7 +88,7 @@ for part in $ALL_STATS_ATIMELIST; do
     fi
   fi
 
-  if [ $LIMIT -ge `du -sb $FILES_CDIR | awk '{print $1}'` ]; then
+  if [ $LIMIT -ge `du -sb "$FILES_CDIR" | awk '{print $1}'` ]; then
     if [ $SILENT -ne 1 ]; then
       echo "finish removing files"
     fi
@@ -96,7 +97,7 @@ for part in $ALL_STATS_ATIMELIST; do
 done
 
 if [ $SILENT -ne 1 ]; then
-  TOTAL_SIZE=`du -sb $FILES_CDIR | awk '{print $1}'`
+  TOTAL_SIZE=`du -sb "$FILES_CDIR" | awk '{print $1}'`
   echo "Finish: $FILES_CDIR total size is $TOTAL_SIZE"
 fi
 
