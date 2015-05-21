@@ -57,19 +57,15 @@ if [ $LIMIT -ge `du -sb $FILES_CDIR | awk '{print $1}'` ]; then
   exit 0
 fi
 
-#
-# Make file list by sorted access time
-#
-FIELD_SEPARATOR='!!!'
-ALL_STATS_ATIMELIST=`find "$STATS_CDIR" -ignore_readdir_race -printf "%A@$FS%p\n" | sort`
-
-#
-# Remove loop
-#
 TMP_ATIME=0
 TMP_STATS=""
 TMP_CFILE=""
-for part in "$ALL_STATS_ATIMELIST"; do
+FIELD_SEPARATOR='!!!'
+
+#
+# Find files sorted by access time
+#
+find "$STATS_CDIR" -ignore_readdir_race -type f -printf "%A@$FIELD_SEPARATOR%p\0" | while read -d '' part; do
   TMP_ATIME=`echo "$part" | awk -F "$FIELD_SEPARATOR" '{print int($1)}'`
   TMP_STATS=`echo "$part" | awk -F "$FIELD_SEPARATOR" '{print $2}'`
   TMP_CFILE=`echo "$TMP_STATS" | sed s/\.$BUCKET\.stat/$BUCKET/`
