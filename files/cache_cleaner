@@ -50,7 +50,7 @@ STATS_CDIR=$CDIR/\.$BUCKET\.stat
 #
 # Check total size
 #
-if [ $LIMIT -ge `du -sb $FILES_CDIR | awk '{print $1}'` ]; then
+if [ $LIMIT -ge `du -sb $FILES_CDIR 2>/dev/null | awk '{print $1}'` ]; then
   if [ $SILENT -ne 1 ]; then
     echo "$FILES_CDIR is below allowed $LIMIT"
   fi
@@ -84,7 +84,7 @@ find "$STATS_CDIR" -ignore_readdir_race -type f -printf "%A@$FIELD_SEPARATOR%p\0
     fi
   fi
 
-  if [ $LIMIT -ge `du -sb "$FILES_CDIR" | awk '{print $1}'` ]; then
+  if [ $LIMIT -ge `du -sb "$FILES_CDIR" 2>/dev/null | awk '{print $1}'` ]; then
     if [ $SILENT -ne 1 ]; then
       echo "finish removing files"
     fi
@@ -93,7 +93,7 @@ find "$STATS_CDIR" -ignore_readdir_race -type f -printf "%A@$FIELD_SEPARATOR%p\0
 done
 
 if [ $SILENT -ne 1 ]; then
-  TOTAL_SIZE=`du -sb "$FILES_CDIR" | awk '{print $1}'`
+  TOTAL_SIZE=`du -sb "$FILES_CDIR" 2>/dev/null | awk '{print $1}'`
   echo "Finish: $FILES_CDIR total size is $TOTAL_SIZE"
 fi
 
