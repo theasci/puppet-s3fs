@@ -32,6 +32,9 @@ class s3fs (
   $package_ensure        = 'latest',
   $credentials_file      = '/etc/passwd-s3fs',
   $mounts                = {},
+  $default_uid           = '0',
+  $default_gid           = '0',
+  $default_mode          = '0660',
   $install_cache_cleaner = false,
 ) {
   include s3fs::dependencies

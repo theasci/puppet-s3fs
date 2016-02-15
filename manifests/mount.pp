@@ -38,9 +38,9 @@ define s3fs::mount (
   $nocopyapi           = false,
   $norenameapi         = false,
 
-  $uid                 = '0',
-  $gid                 = '0',
-  $mode                = '0660',
+  $uid                 = $::s3fs::default_uid,
+  $gid                 = $::s3fs::default_gid,
+  $mode                = $::s3fs::default_mode,
   $read_only           = false,
   $atboot              = true,
   $remounts            = false,
