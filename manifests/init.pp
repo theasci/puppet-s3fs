@@ -35,6 +35,7 @@ class s3fs (
   $default_uid           = '0',
   $default_gid           = '0',
   $default_mode          = '0660',
+  $default_umask         = undef,
   $install_cache_cleaner = false,
 ) {
   include s3fs::dependencies

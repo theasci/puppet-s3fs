@@ -41,7 +41,7 @@ define s3fs::mount (
   $uid                 = $::s3fs::default_uid,
   $gid                 = $::s3fs::default_gid,
   $mode                = $::s3fs::default_mode,
-  $umask               = undef,
+  $umask               = $::s3fs::default_umask,
   $read_only           = false,
   $atboot              = true,
   $remounts            = false,
