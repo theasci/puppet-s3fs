@@ -50,11 +50,11 @@ define s3fs::mount (
   include s3fs
 
   case $ensure {
-    present, defined, unmounted, mounted: {
+    'present', 'defined', 'unmounted', 'mounted': {
       $ensure_mount = 'mounted'
       $ensure_dir = 'directory'
     }
-    absent: {
+    'absent': {
       $ensure_mount = 'absent'
       $ensure_dir = 'absent'
     }
