@@ -1,0 +1,8 @@
+{
+  "name": "Vlad-s3fs",
+  "version": "0.0.1",
+  "author": "Vlad",
+  "dependencies": [
+    {"name": "puppetlabs/stdlib", "version_requirement":">= 3.2.0"}
+  ]
+}
