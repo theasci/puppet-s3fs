@@ -37,6 +37,7 @@ define s3fs::mount (
   $noxmlns             = false,
   $nocopyapi           = false,
   $norenameapi         = false,
+  $nonempty            = false,
 
   $uid                 = $::s3fs::default_uid,
   $gid                 = $::s3fs::default_gid,
@@ -95,7 +96,8 @@ define s3fs::mount (
     '<% if @iam_role %>,iam_role=<%= @iam_role %><% end %>',
     '<% if @noxmlns %>,noxmlns<% end %>',
     '<% if @nocopyapi %>,nocopyapi<% end %>',
-    '<% if @norenameapi %>,norenameapi<% end %>'
+    '<% if @norenameapi %>,norenameapi<% end %>',
+    '<% if @nonempty %>,nonempty<% end %>'
   )
 
   file { $mount_point:
